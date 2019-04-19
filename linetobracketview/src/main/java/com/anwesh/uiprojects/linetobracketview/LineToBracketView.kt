@@ -204,4 +204,26 @@ class LineToBracketView(ctx : Context) : View(ctx) {
             curr.startUpdating(cb)
         }
     }
+
+    data class Renderer(var view : LineToBracketView) {
+
+        private val animator : Animator = Animator(view)
+        private val ltb : LineToBracket = LineToBracket(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(backColor)
+            ltb.draw(canvas, paint)
+            animator.animate {
+                ltb.update {i, scl ->
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            ltb.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }
