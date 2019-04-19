@@ -20,6 +20,9 @@ val strokeFactor : Int = 90
 val sizeFactor : Float = 2.9f
 val foreColor : Int = Color.parseColor("#9C27B0")
 val backColor : Int = Color.parseColor("#BDBDBD")
+val lineF : Int = 4
+val angleDeg : Float = 90f
+val parts : Int = 2
 
 fun Int.inverse() : Float = 1f / this
 fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n.inverse())
@@ -30,3 +33,41 @@ fun Float.mirrorValue(a : Int, b : Int) : Float {
     return (1 - k) * a.inverse() + k * b.inverse()
 }
 fun Float.updateValue(dir : Float, a : Int, b : Int) : Float = mirrorValue(a, b) * dir * scGap
+fun Int.sjf() : Float = 1f - 2 * this
+
+fun Canvas.drawBracket(size : Float, sc : Float, paint : Paint) {
+    val lSize : Float = size / lineF
+    val yOffset = size - lSize
+    drawLine(0f, -yOffset, 0f, yOffset, paint)
+    for (j in 0..(parts - 1)) {
+        save()
+        translate(0f, -yOffset * j.sjf())
+        rotate(angleDeg * sc.divideScale(j, parts))
+        drawLine(0f, 0f, 0f, -lSize, paint)
+        restore()
+    }
+}
+
+fun Canvas.drawLineToBracket(size : Float, sc1 : Float, sc2 : Float, paint : Paint) {
+    for (j in 0..(lines - 1)) {
+        save()
+        scale(j.sjf(), 1f)
+        translate(size * sc1.divideScale(j, lines), 0f)
+        drawBracket(size, sc2.divideScale(j, lines), paint)
+        restore()
+    }
+}
+
+fun Canvas.drawLTBNode(i : Int, scale : Float, paint : Paint) {
+    val w : Float = width.toFloat()
+    val h : Float = height.toFloat()
+    val gap : Float = h / (nodes + 1)
+    val size : Float = gap / sizeFactor
+    paint.color = foreColor
+    paint.strokeWidth = Math.min(w, h) / strokeFactor
+    paint.strokeCap = Paint.Cap.ROUND 
+    save()
+    translate(w / 2, gap * (i + 1))
+    drawLineToBracket(size, scale.divideScale(0, 2), scale.divideScale(1, 2), paint)
+    restore()
+}
