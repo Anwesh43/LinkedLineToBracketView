@@ -77,6 +77,19 @@ class LineToBracketView(ctx : Context) : View(ctx) {
 
     private val paint : Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val renderer : Renderer = Renderer(this)
+    private var transformListener : TransformationListener? = null
+
+    fun addTransformListener(lineToBracketCb: (Int) -> Unit, bracketToLineCb: (Int) -> Unit) {
+        transformListener = TransformationListener(lineToBracketCb, bracketToLineCb)
+    }
+
+    fun transformFromLineToBracket(i : Int) {
+        transformListener?.lineToBracketCb?.invoke(i)
+    }
+
+    fun transformFromBracketToLine(i : Int) {
+        transformListener?.bracketToLineCb?.invoke(i)
+    }
 
     override fun onDraw(canvas : Canvas) {
         renderer.render(canvas, paint)
@@ -218,6 +231,10 @@ class LineToBracketView(ctx : Context) : View(ctx) {
             animator.animate {
                 ltb.update {i, scl ->
                     animator.stop()
+                    when(scl) {
+                        0f -> view.transformFromBracketToLine(i)
+                        1f -> view.transformFromLineToBracket(i)
+                    }
                 }
             }
         }
@@ -238,3 +255,5 @@ class LineToBracketView(ctx : Context) : View(ctx) {
         }
     }
 }
+
+data class TransformationListener(var lineToBracketCb : (Int) -> Unit, var bracketToLineCb : (Int) -> Unit)
