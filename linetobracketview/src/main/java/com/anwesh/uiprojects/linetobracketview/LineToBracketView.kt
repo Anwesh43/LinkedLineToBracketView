@@ -42,8 +42,8 @@ fun Canvas.drawBracket(size : Float, sc : Float, paint : Paint) {
     for (j in 0..(parts - 1)) {
         save()
         translate(0f, -yOffset * j.sjf())
-        rotate(angleDeg * sc.divideScale(j, parts))
-        drawLine(0f, 0f, 0f, -lSize, paint)
+        rotate(-angleDeg * sc.divideScale(j, parts) * j.sjf())
+        drawLine(0f, 0f, 0f, -lSize * j.sjf(), paint)
         restore()
     }
 }
@@ -52,7 +52,7 @@ fun Canvas.drawLineToBracket(size : Float, sc1 : Float, sc2 : Float, paint : Pai
     for (j in 0..(lines - 1)) {
         save()
         scale(j.sjf(), 1f)
-        translate(size * sc1.divideScale(j, lines), 0f)
+        translate((size / 2) * sc1.divideScale(j, lines), 0f)
         drawBracket(size, sc2.divideScale(j, lines), paint)
         restore()
     }
